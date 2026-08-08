@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 import numpy as np
 import joblib
+import sklearn # ลอง import เผื่อไว้
 import datetime
 
 # =========================================================
@@ -46,8 +47,8 @@ def load_thingspeak_data():
     except:
         return pd.DataFrame({'created_at': [pd.Timestamp.now()], 'field1': [0.0], 'field2': [0.0], 'field3': [0.0]})
 
-@st.cache_data(ttl=3600) # ดึงพยากรณ์อากาศใหม่ทุก 1 ชั่วโมง
-def get_7d_weather(lat=13.28, lon=100.92): # 📍 พิกัด ม.บูรพา บางแสน
+@st.cache_data(ttl=3600) 
+def get_7d_weather(lat=13.28, lon=100.92): 
     url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&daily=temperature_2m_max,relative_humidity_2m_mean,wind_speed_10m_max,rain_sum&timezone=Asia/Bangkok"
     try:
         res = requests.get(url)
@@ -112,7 +113,9 @@ with tab2:
                                 f"<p style='margin:0; font-size: 12px; color: gray;'>µg/m³</p>"
                                 f"</div>", unsafe_allow_html=True)
         except Exception as e:
-            st.error("⚠️ ไม่พบไฟล์โมเดล AI (pm25_ai_model_7d.pkl) กรุณาตรวจสอบใน GitHub")
+            # 🛠️ จุดที่เปลี่ยนแปลง: โชว์ Error ของจริงให้เราเห็น!
+            st.error(f"⚠️ พบปัญหาทางเทคนิค (รบกวนก๊อปปี้ข้อความนี้ส่งให้ผมนะครับ): {e}")
+            st.write("คอลัมน์พยากรณ์อากาศที่ดึงมาได้:", weather_df.columns.tolist())
     else:
         st.error("⚠️ ไม่สามารถดึงข้อมูลพยากรณ์อากาศได้ในขณะนี้")
 
