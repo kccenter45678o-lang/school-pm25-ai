@@ -10,30 +10,68 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- 2. ตกแต่ง UI ด้วย CSS (Card & Background) ---
+# --- 2. ตกแต่ง UI ด้วย CSS (ธีม 🌊 Ocean Breeze) ---
 custom_css = """
 <style>
+    /* ซ่อนเมนูพื้นฐาน */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* เปลี่ยนสีพื้นหลังของเว็บให้เป็นสีเทาอ่อนๆ เพื่อให้การ์ดดูโดดเด่น */
+    /* พื้นหลังเว็บแบบ Ocean Breeze (ไล่สีฟ้าอ่อน-คราม) */
     .stApp {
-        background-color: #f8f9fa;
+        background: linear-gradient(135deg, #e0f7fa 0%, #bbdefb 100%);
     }
     
-    /* ตกแต่งกล่องตัวเลข (Metric) ให้เป็นรูปแบบการ์ดมีเงา */
-    div[data-testid="metric-container"] {
-        background-color: #ffffff;
-        border: 1px solid #e0e0e0;
-        padding: 15px 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        border-left: 5px solid #3498db; /* แถบสีฟ้าด้านซ้าย */
-        transition: transform 0.2s;
+    /* ปรับสีหัวข้อ (Headers) ให้เป็นสีน้ำเงินกรมท่า (Navy Blue) */
+    h1, h2, h3, h4, h5, h6 {
+        color: #01579b !important;
+        font-weight: bold;
     }
+
+    /* ตกแต่งกล่องตัวเลข (Metric Cards) ให้ดูเป็นมุกและมีมิติ */
+    div[data-testid="metric-container"] {
+        background-color: rgba(255, 255, 255, 0.85);
+        border: none;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 16px rgba(1, 87, 155, 0.1);
+        border-bottom: 5px solid #29b6f6; /* แถบสีฟ้าสดใสด้านล่าง */
+        transition: all 0.3s ease-in-out;
+        backdrop-filter: blur(5px); /* ลูกเล่นเบลอพื้นหลังนิดๆ ให้ดูหรูขึ้น */
+    }
+    
+    /* Effect ตอนเอาเมาส์ชี้ที่ Card (ลอยขึ้นและสีเข้มขึ้น) */
     div[data-testid="metric-container"]:hover {
-        transform: translateY(-3px); /* ลูกเล่นขยับเมื่อเอาเมาส์ชี้ */
+        transform: translateY(-5px);
+        box-shadow: 0 12px 20px rgba(1, 87, 155, 0.25);
+        border-bottom: 5px solid #0288d1; 
+    }
+
+    /* ปรับแต่งสีของตัวเลขหลักใน Metric */
+    div[data-testid="stMetricValue"] {
+        color: #0277bd !important;
+    }
+    
+    /* สีของ Label ใน Metric */
+    label[data-testid="stMetricLabel"] {
+        color: #01579b !important;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    /* ปรับสีตัวอักษรทั่วไปให้เป็นโทนกรมท่าอ่านง่าย */
+    p, .stMarkdown {
+        color: #154360;
+    }
+
+    /* ตกแต่งกล่องแจ้งเตือน (Alert/Info) ให้ใสขึ้นและมีขอบมน */
+    div[data-testid="stAlert"] {
+        background-color: rgba(255, 255, 255, 0.75) !important;
+        border-radius: 12px;
+        backdrop-filter: blur(5px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        border: 1px solid rgba(255,255,255,0.5);
     }
 </style>
 """
@@ -104,15 +142,10 @@ def get_regional_pm25_forecast():
 
 # --- ฟังก์ชันแต่งสีตาราง ---
 def color_pm25_level(val):
-    """เปลี่ยนสีพื้นหลังตารางตามค่าฝุ่น"""
-    if val <= 15.0:
-        return 'background-color: #d4edda; color: #155724;' # เขียวอ่อน
-    elif val <= 37.5:
-        return 'background-color: #fff3cd; color: #856404;' # เหลืองอ่อน
-    elif val <= 75.0:
-        return 'background-color: #ffe8cc; color: #e67e22;' # ส้ม
-    else:
-        return 'background-color: #f8d7da; color: #721c24;' # แดงอ่อน
+    if val <= 15.0: return 'background-color: #d4edda; color: #155724;'
+    elif val <= 37.5: return 'background-color: #fff3cd; color: #856404;'
+    elif val <= 75.0: return 'background-color: #ffe8cc; color: #e67e22;'
+    else: return 'background-color: #f8d7da; color: #721c24;'
 
 # --- UI หลัก ---
 st.title("ศูนย์เฝ้าระวังคุณภาพอากาศ ม.บูรพา บางแสน 🌊")
@@ -132,7 +165,7 @@ with tab1:
         elif pm_val <= 75.0: st.warning("🟠 **เริ่มมีผลกระทบต่อสุขภาพ:** ควรลดระยะเวลาการทำกิจกรรมกลางแจ้ง")
         else: st.error("🔴 **มีผลกระทบต่อสุขภาพ:** งดกิจกรรมกลางแจ้ง และสวมหน้ากากอนามัย N95 ทันที!")
 
-        st.write("") # เว้นบรรทัด
+        st.write("") 
         
         # กล่องข้อมูล (Cards)
         col1, col2, col3, col4 = st.columns(4)
@@ -160,21 +193,18 @@ with tab2:
         if forecast_df is not None and not forecast_df.empty:
             forecast_df['date'] = pd.to_datetime(forecast_df['date']).dt.strftime('%Y-%m-%d')
             
-            # แบ่งหน้าจอครึ่งซ้ายขวา ให้กราฟและตารางอยู่คู่กัน (จะได้ไม่โล่ง)
             left_col, right_col = st.columns([6, 4])
             
             with left_col:
                 chart_data = forecast_df.set_index('date')[['Regional_PM25']]
-                st.area_chart(chart_data, color="#3498db")
+                # เปลี่ยนสีกราฟเป็นโทนน้ำเงินให้เข้ากับธีมทะเล
+                st.area_chart(chart_data, color="#0288d1")
                 
             with right_col:
                 display_df = forecast_df[['date', 'Regional_PM25']].copy()
                 display_df.columns = ['วันที่คาดการณ์', 'ค่า PM 2.5 (µg/m³)']
                 
-                # นำฟังก์ชันแต่งสีมาใส่ตาราง
                 styled_df = display_df.style.map(color_pm25_level, subset=['ค่า PM 2.5 (µg/m³)'])
-                
-                # แสดงตารางแบบซ่อนหมายเลขบรรทัด
                 st.dataframe(styled_df, use_container_width=True, hide_index=True)
 
 with tab3:
