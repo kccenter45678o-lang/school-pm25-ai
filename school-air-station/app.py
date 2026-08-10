@@ -7,32 +7,27 @@ CHANNEL_ID = '2104323'
 READ_API_KEY = 'J29XMPTCYYIX42XK'
 URL = f"https://api.thingspeak.com/channels/{CHANNEL_ID}/feeds.json?api_key={READ_API_KEY}&results=1"
 
-# --- สมการ Calibration (สามารถแก้ตัวเลขได้ง่ายๆ บน GitHub) ---
-# ค่าเหล่านี้สามารถอัปเดตภายหลังได้เมื่อเทียบกับสถานีมาตรฐาน (เช่น จุดวัด ม.บูรพา)
-SLOPE_M = 0.85      # ค่า m ในสมการ y = mx + c
-INTERCEPT_C = 2.5   # ค่า c 
-HUMIDITY_THRESHOLD = 70.0 # ความชื้นที่ทำให้ฝุ่นเริ่มบวมน้ำ
-HUMIDITY_PENALTY = 0.25   # อัตราการหักลบค่าฝุ่นต่อความชื้นที่เกิน 1%
+# --- สมการ Calibration (Shift to Cloud) ---
+SLOPE_M = 0.85      
+INTERCEPT_C = 2.5   
+HUMIDITY_THRESHOLD = 70.0 
+HUMIDITY_PENALTY = 0.25   
 
 def calibrate_pm25(raw_pm25, humidity):
     """ฟังก์ชันชดเชยค่าความชื้นและปรับเทียบสมการ"""
     if pd.isna(raw_pm25) or pd.isna(humidity):
         return None
         
-    # 1. ชดเชยความชื้น (Humidity Compensation)
     if humidity > HUMIDITY_THRESHOLD:
-        # หักลบค่าฝุ่นที่เกิดจากละอองน้ำ
         compensated_pm25 = raw_pm25 - ((humidity - HUMIDITY_THRESHOLD) * HUMIDITY_PENALTY)
-        # ป้องกันไม่ให้ค่าชดเชยต่ำกว่าค่า 0 หรือน้อยเกินไป
         compensated_pm25 = max(compensated_pm25, raw_pm25 * 0.5) 
     else:
         compensated_pm25 = raw_pm25
         
-    # 2. ปรับเทียบสมการเชิงเส้น (Linear Calibration: y = mx + c)
     final_pm25 = (compensated_pm25 * SLOPE_M) + INTERCEPT_C
-    
-    return max(0, round(final_pm25, 2)) # คืนค่าผลลัพธ์เป็นทศนิยม 2 ตำแหน่ง ไม่ให้ติดลบ
+    return max(0, round(final_pm25, 2)) 
 
+@st.cache_data(ttl=300)
 def get_latest_data():
     """ดึงข้อมูลล่าสุดจาก ThingSpeak"""
     try:
@@ -42,13 +37,11 @@ def get_latest_data():
         
         if feeds:
             latest = feeds[-1]
-            # ดึงค่าจาก Field 1-4 ตามที่ตั้งไว้ใน ESP32
-            raw_pm25 = float(latest.get('field1', 0))
-            raw_pm10 = float(latest.get('field2', 0))
-            temp = float(latest.get('field3', 0))
-            hum = float(latest.get('field4', 0))
+            raw_pm25 = float(latest.get('field1', 0) or 0)
+            raw_pm10 = float(latest.get('field2', 0) or 0)
+            temp = float(latest.get('field3', 0) or 0)
+            hum = float(latest.get('field4', 0) or 0)
             
-            # รันกระบวนการ Shift to Cloud Calibration
             calibrated_pm25 = calibrate_pm25(raw_pm25, hum)
             
             return {
@@ -62,14 +55,40 @@ def get_latest_data():
         st.error(f"Error fetching data: {e}")
     return None
 
+@st.cache_data(ttl=3600)
+def get_regional_pm25_forecast():
+    """ดึงข้อมูลคาดการณ์ PM 2.5 ล่วงหน้า 7 วันในพื้นที่ ม.บูรพา จาก Open-Meteo"""
+    LAT = 13.28
+    LON = 100.92
+    url = f"https://air-quality-api.open-meteo.com/v1/air-quality?latitude={LAT}&longitude={LON}&hourly=pm2_5&timezone=Asia%2FBangkok"
+    
+    try:
+        response = requests.get(url)
+        data = response.json()
+        
+        if 'hourly' in data:
+            df = pd.DataFrame(data['hourly'])
+            df['time'] = pd.to_datetime(df['time'])
+            df['date'] = df['time'].dt.date
+            
+            daily_df = df.groupby('date').mean().reset_index()
+            daily_df = daily_df.rename(columns={'pm2_5': 'Regional_PM25'})
+            daily_df['Regional_PM25'] = daily_df['Regional_PM25'].round(2)
+            return daily_df
+    except Exception as e:
+        st.error(f"Error fetching regional air quality: {e}")
+    return None
+
 # --- UI บน Streamlit ---
+st.set_page_config(page_title="PM 2.5 Monitor - BUU", page_icon="🌊", layout="centered")
+
 st.title("ศูนย์เฝ้าระวังคุณภาพอากาศ (PM 2.5) ม.บูรพา บางแสน 🌊")
 st.markdown("ระบบใช้เทคนิค Shift to Cloud Calibration ชดเชยค่าความชื้นและปรับเทียบด้วยสมการคณิตศาสตร์")
 
 current_data = get_latest_data()
 
 if current_data:
-    st.subheader("ข้อมูลปัจจุบัน (Real-time)")
+    st.subheader("📍 ข้อมูลปัจจุบัน (Real-time)")
     
     col1, col2, col3, col4 = st.columns(4)
     with col1:
@@ -86,4 +105,27 @@ if current_data:
 else:
     st.warning("รอรับข้อมูลจาก ThingSpeak...")
 
-# ** หมายเหตุ: โค้ดส่วนดึง Open-Meteo, เทรน Random Forest และส่งแจ้งเตือน LINE จะนำมาต่อท้ายส่วนนี้
+st.divider()
+
+# --- ส่วนพยากรณ์ 7 วันล่วงหน้า ---
+st.subheader("🌍 คาดการณ์แนวโน้ม PM 2.5 ล่วงหน้า 7 วัน (พื้นที่โดยรอบ)")
+st.markdown("อ้างอิงข้อมูลดาวเทียมและสถานีใกล้เคียงจาก Open-Meteo (พิกัด ม.บูรพา บางแสน)")
+
+with st.spinner('กำลังดึงข้อมูลพยากรณ์คุณภาพอากาศระดับภูมิภาค...'):
+    forecast_df = get_regional_pm25_forecast()
+    
+    if forecast_df is not None and not forecast_df.empty:
+        forecast_df['date'] = pd.to_datetime(forecast_df['date']).dt.strftime('%Y-%m-%d')
+        chart_data = forecast_df.set_index('date')[['Regional_PM25']]
+        
+        st.line_chart(chart_data, color="#1f77b4")
+        
+        display_df = forecast_df.copy()
+        display_df.columns = ['วันที่', 'คาดการณ์ PM 2.5 พื้นที่โดยรอบ (µg/m³)']
+        
+        if current_data:
+            st.success(f"💡 **เปรียบเทียบ:** ค่าฝุ่นจากเซนเซอร์ของเราตอนนี้คือ **{current_data['calibrated_pm25']} µg/m³**")
+            
+        st.dataframe(display_df, use_container_width=True)
+    else:
+        st.error("ไม่สามารถดึงข้อมูลคาดการณ์จากพื้นที่โดยรอบได้ในขณะนี้")
