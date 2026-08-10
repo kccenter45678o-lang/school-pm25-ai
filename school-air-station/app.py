@@ -120,7 +120,8 @@ with st.spinner('กำลังดึงข้อมูลพยากรณ์
         
         st.line_chart(chart_data, color="#1f77b4")
         
-        display_df = forecast_df.copy()
+# เลือกระบุเฉพาะ 2 คอลัมน์ที่ต้องการจริงๆ ก่อนเปลี่ยนชื่อ
+        display_df = forecast_df[['date', 'Regional_PM25']].copy()
         display_df.columns = ['วันที่', 'คาดการณ์ PM 2.5 พื้นที่โดยรอบ (µg/m³)']
         
         if current_data:
