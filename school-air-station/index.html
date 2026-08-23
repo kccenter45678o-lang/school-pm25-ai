@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ศูนย์เฝ้าระวังคุณภาพอากาศ ม.บูรพา บางแสน 🌊</title>
+    <!-- Tailwind CSS สำหรับจัดสไตล์ -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js สำหรับวาดกราฟพยากรณ์ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kanit', sans-serif; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-cyan-100 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center py-6">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-blue-900">ศูนย์เฝ้าระวังคุณภาพอากาศ ม.บูรพา บางแสน 🌊</h1>
+            <p class="text-base md:text-lg text-blue-700 mt-2">ระบบตรวจวัดฝุ่น Real-time พร้อมเทคโนโลยีชดเชยความชื้น</p>
+        </header>
+
+        <!-- Status Banner -->
+        <div id="statusBanner" class="w-full text-center py-3 px-4 font-bold text-white rounded-xl shadow-md mb-6 transition-all duration-300">
+            กำลังโหลดข้อมูลคุณภาพอากาศ...
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex justify-center border-b border-blue-200 mb-6 gap-2">
+            <button onclick="switchTab('realtime')" id="tabBtn-realtime" class="py-2 px-6 font-bold text-blue-900 border-b-4 border-blue-600 focus:outline-none">📊 Real-time</button>
+            <button onclick="switchTab('forecast')" id="tabBtn-forecast" class="py-2 px-6 font-bold text-gray-500 border-b-4 border-transparent hover:text-blue-900 focus:outline-none">🌍 พยากรณ์ 7 วัน</button>
+            <button onclick="switchTab('system')" id="tabBtn-system" class="py-2 px-6 font-bold text-gray-500 border-b-4 border-transparent hover:text-blue-900 focus:outline-none">⚙️ ข้อมูลระบบ</button>
+        </div>
+
+        <!-- TAB 1: Real-time -->
+        <div id="tab-realtime" class="space-y-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- PM2.5 Calibrated -->
+                <div class="bg-white/90 backdrop-blur-sm p-5 rounded-2xl shadow-lg border-b-4 border-blue-500 text-center">
+                    <p class="text-xs md:text-sm font-bold text-gray-500">PM 2.5 (แม่นยำสูง)</p>
+                    <h2 id="pm25Cal" class="text-3xl md:text-4xl font-bold text-blue-600 my-2">--</h2>
+                    <span class="text-xs text-gray-400">µg/m³</span>
+                </div>
+                <!-- PM2.5 Raw -->
+                <div class="bg-white/90 backdrop-blur-sm p-5 rounded-2xl shadow-lg border-b-4 border-gray-400 text-center">
+                    <p class="text-xs md:text-sm font-bold text-gray-500">PM 2.5 (ค่าดิบ)</p>
+                    <h2 id="pm25Raw" class="text-3xl md:text-4xl font-bold text-gray-600 my-2">--</h2>
+                    <span class="text-xs text-gray-400">µg/m³</span>
+                </div>
+                <!-- Temperature -->
+                <div class="bg-white/90 backdrop-blur-sm p-5 rounded-2xl shadow-lg border-b-4 border-orange-400 text-center">
+                    <p class="text-xs md:text-sm font-bold text-gray-500">อุณหภูมิ</p>
+                    <h2 id="temp" class="text-3xl md:text-4xl font-bold text-orange-500 my-2">--</h2>
+                    <span class="text-xs text-gray-400">°C</span>
+                </div>
+                <!-- Humidity -->
+                <div class="bg-white/90 backdrop-blur-sm p-5 rounded-2xl shadow-lg border-b-4 border-cyan-400 text-center">
+                    <p class="text-xs md:text-sm font-bold text-gray-500">ความชื้นสัมพัทธ์</p>
+                    <h2 id="humidity" class="text-3xl md:text-4xl font-bold text-cyan-500 my-2">--</h2>
+                    <span class="text-xs text-gray-400">%</span>
+                </div>
+            </div>
+            <p id="updateTime" class="text-center text-xs md:text-sm text-gray-500 mt-4">อัปเดตล่าสุด: กำลังโหลด...</p>
+        </div>
+
+        <!-- TAB 2: Forecast -->
+        <div id="tab-forecast" class="hidden space-y-6">
+            <div class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg">
+                <h3 class="text-lg font-bold text-blue-900 mb-4">คาดการณ์พื้นที่ ม.บูรพา บางแสน (Open-Meteo)</h3>
+                <div class="h-64 w-full mb-6">
+                    <canvas id="forecastChart"></canvas>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-gray-600">
+                        <thead class="bg-blue-50 text-blue-900 uppercase">
+                            <tr>
+                                <th class="py-2 px-4 rounded-l-lg">วันที่</th>
+                                <th class="py-2 px-4 text-right rounded-r-lg">ค่าคาดการณ์ PM 2.5 (µg/m³)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="forecastTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: System Info -->
+        <div id="tab-system" class="hidden">
+            <div class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg text-gray-700 space-y-4">
+                <h3 class="text-xl font-bold text-blue-900 border-b pb-2">สถาปัตยกรรมระบบ</h3>
+                <ul class="list-disc list-inside space-y-1 text-sm md:text-base">
+                    <li><strong>Hardware:</strong> ESP32 + PMS5003 + BME280</li>
+                    <li><strong>Cloud Platform:</strong> ThingSpeak (Real-time IoT Hub)</li>
+                    <li><strong>Hosting:</strong> Netlify Global CDN (Static Web Application)</li>
+                </ul>
+                <div class="bg-blue-50 p-4 rounded-xl text-sm border border-blue-100">
+                    <p class="font-bold text-blue-900 mb-1">สมการปรับแก้ความชื้น (Calibration):</p>
+                    <code>y = 0.85x + 2.5</code>
+                    <p class="text-xs text-gray-500 mt-1">*หักลบค่าบวมน้ำของอนุภาคฝุ่นอัตโนมัติเมื่อความชื้นเกิน 70%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // ----------------------------------------------------
+        // การตั้งค่า API (เปลี่ยน CHANNEL_ID และ KEY ตรงนี้)
+        // ----------------------------------------------------
+        const CHANNEL_ID = '2104323'; 
+        const READ_API_KEY = 'J29XMPTCYYIX42XK';
+        const THINGSPEAK_URL = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?api_key=${READ_API_KEY}&results=1`;
+        
+        // ม.บูรพา บางแสน
+        const LAT = 13.28, LON = 100.92;
+        const FORECAST_URL = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${LAT}&longitude=${LON}&hourly=pm2_5&timezone=Asia%2FBangkok`;
+
+        // ฟังก์ชันคำนวณ Calibration
+        function calibratePM25(raw, hum) {
+            if (isNaN(raw) || isNaN(hum)) return 0;
+            let comp = raw;
+            if (hum > 70.0) {
+                comp = raw - ((hum - 70.0) * 0.25);
+                comp = Math.max(comp, raw * 0.5);
+            }
+            let finalVal = (comp * 0.85) + 2.5;
+            return Math.max(0, parseFloat(finalVal.toFixed(2)));
+        }
+
+        // ดึงข้อมูล Real-time
+        async function fetchRealtime() {
+            try {
+                const res = await fetch(THINGSPEAK_URL);
+                const data = await res.json();
+                if (data.feeds && data.feeds.length > 0) {
+                    const latest = data.feeds[0];
+                    const rawPM = parseFloat(latest.field1) || 0;
+                    const temp = parseFloat(latest.field3) || 0;
+                    const hum = parseFloat(latest.field4) || 0;
+                    const calPM = calibratePM25(rawPM, hum);
+                    
+                    document.getElementById('pm25Cal').innerText = calPM.toFixed(2);
+                    document.getElementById('pm25Raw').innerText = rawPM.toFixed(2);
+                    document.getElementById('temp').innerText = temp.toFixed(1);
+                    document.getElementById('humidity').innerText = hum.toFixed(1);
+                    
+                    const time = new Date(latest.created_at).toLocaleString('th-TH');
+                    document.getElementById('updateTime').innerText = `อัปเดตล่าสุด: ${time}`;
+
+                    updateBanner(calPM);
+                }
+            } catch (err) {
+                console.error("Realtime Error:", err);
+            }
+        }
+
+        // อัปเดตแถบสีแจ้งเตือน
+        function updateBanner(pm) {
+            const banner = document.getElementById('statusBanner');
+            banner.className = "w-full text-center py-3 px-4 font-bold text-white rounded-xl shadow-md mb-6 transition-all duration-300 ";
+            if (pm <= 15.0) {
+                banner.innerText = "🟢 คุณภาพอากาศดีมาก: สามารถทำกิจกรรมกลางแจ้งได้ตามปกติ";
+                banner.classList.add("bg-green-500");
+            } else if (pm <= 37.5) {
+                banner.innerText = "🟡 คุณภาพอากาศปานกลาง: ประชาชนทั่วไปทำกิจกรรมได้ กลุ่มเสี่ยงควรระวัง";
+                banner.classList.add("bg-yellow-500");
+            } else if (pm <= 75.0) {
+                banner.innerText = "🟠 เริ่มมีผลกระทบต่อสุขภาพ: ควรลดระยะเวลาการทำกิจกรรมกลางแจ้ง";
+                banner.classList.add("bg-orange-500");
+            } else {
+                banner.innerText = "🔴 มีผลกระทบต่อสุขภาพ: งดกิจกรรมกลางแจ้ง และสวมหน้ากาก N95 ทันที!";
+                banner.classList.add("bg-red-600");
+            }
+        }
+
+        // ดึงข้อมูล Forecast Open-Meteo
+        let forecastChart = null;
+        async function fetchForecast() {
+            try {
+                const res = await fetch(FORECAST_URL);
+                const data = await res.json();
+                if (data.hourly) {
+                    const dates = data.hourly.time;
+                    const values = data.hourly.pm2_5;
+                    
+                    // Group by Date เพื่อหาค่าเฉลี่ยรายวัน
+                    const dailyMap = {};
+                    dates.forEach((dStr, idx) => {
+                        const dateOnly = dStr.split('T')[0];
+                        if (!dailyMap[dateOnly]) dailyMap[dateOnly] = [];
+                        dailyMap[dateOnly].push(values[idx]);
+                    });
+
+                    const labels = [];
+                    const avgData = [];
+                    const tableBody = document.getElementById('forecastTableBody');
+                    tableBody.innerHTML = '';
+
+                    for (const [date, vals] of Object.entries(dailyMap)) {
+                        const avg = (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2);
+                        labels.push(date);
+                        avgData.push(avg);
+
+                        // แทรกแถวในตาราง
+                        const row = `<tr class="border-b border-gray-100 hover:bg-blue-50/50">
+                            <td class="py-2.5 px-4 font-medium text-gray-700">${date}</td>
+                            <td class="py-2.5 px-4 text-right font-bold text-blue-600">${avg}</td>
+                        </tr>`;
+                        tableBody.innerHTML += row;
+                    }
+
+                    // วาดกราฟ Chart.js
+                    const ctx = document.getElementById('forecastChart').getContext('2d');
+                    if (forecastChart) forecastChart.destroy();
+                    forecastChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'PM 2.5 (µg/m³)',
+                                data: avgData,
+                                borderColor: '#0284c7',
+                                backgroundColor: 'rgba(2, 132, 199, 0.15)',
+                                fill: true,
+                                tension: 0.3
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false }
+                    });
+                }
+            } catch (err) {
+                console.error("Forecast Error:", err);
+            }
+        }
+
+        // จัดการ Tab Navigation
+        function switchTab(tabId) {
+            ['realtime', 'forecast', 'system'].forEach(id => {
+                document.getElementById(`tab-${id}`).classList.add('hidden');
+                document.getElementById(`tabBtn-${id}`).className = "py-2 px-6 font-bold text-gray-500 border-b-4 border-transparent hover:text-blue-900 focus:outline-none";
+            });
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            document.getElementById(`tabBtn-${tabId}`).className = "py-2 px-6 font-bold text-blue-900 border-b-4 border-blue-600 focus:outline-none";
+        }
+
+        // เริ่มต้นทำงาน & ตั้งเวลารีเฟรชทุก 1 นาที
+        fetchRealtime();
+        fetchForecast();
+        setInterval(fetchRealtime, 60000);
+    </script>
+</body>
+</html>
