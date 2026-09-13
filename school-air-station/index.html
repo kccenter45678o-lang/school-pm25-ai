@@ -167,8 +167,9 @@
         const CHANNEL_ID = '3427524'; 
         const READ_API_KEY = 'J29XMPTCYYIX42XK';
         const THINGSPEAK_URL = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?api_key=${READ_API_KEY}&results=1`;
-        const LAT = 13.28, LON = 100.92;
-        const FORECAST_URL = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${LAT}&longitude=${LON}&hourly=pm2_5&timezone=Asia%2FBangkok`;
+        
+        // ลิงก์ API พยากรณ์ฝุ่นที่เชื่อมต่อกับโมเดล AI บน Render ของคุณ
+        const FORECAST_URL = `https://pm25-ai-api-nnhs.onrender.com/my-forecast`;
 
         function formatHumanDate(dateString) {
             const date = new Date(dateString);
@@ -192,7 +193,6 @@
             }
         }
 
-        // ปรับเกณฑ์สีใหม่ให้ตรงกับป้าย 5 ระดับ (ฟ้า, เขียว, เหลือง, ส้ม, แดง)
         function getAQIStatus(pm) {
             if (pm <= 15.0) return { text: "ดีมาก", icon: "🔵", face: "😄", bannerBg: "bg-blue-500", textCol: "text-blue-500", borderCol: "border-blue-500", bgCol: "bg-blue-50", desc: "อากาศดี สามารถทำกิจกรรมกลางแจ้งได้ตามปกติ" };
             if (pm <= 25.0) return { text: "ดี", icon: "🟢", face: "🙂", bannerBg: "bg-green-500", textCol: "text-green-500", borderCol: "border-green-500", bgCol: "bg-green-50", desc: "คนทั่วไปปกติ กลุ่มเสี่ยงควรลดเวลากลางแจ้ง" };
@@ -218,7 +218,6 @@
                 const data = await res.json();
                 if (data.feeds && data.feeds.length > 0) {
                     const latest = data.feeds[0];
-                    // แก้ไขการดึงฟิลด์ให้ตรงตามที่คุยกันไว้
                     const rawPM = parseFloat(latest.field1) || 0;
                     const temp = parseFloat(latest.field2) || 0; 
                     const hum = parseFloat(latest.field3) || 0;
@@ -321,7 +320,6 @@
                                     data: avgData,
                                     backgroundColor: avgData.map(val => {
                                         const s = getAQIStatus(val);
-                                        // ปรับสีในกราฟให้ตรงกับ 5 ระดับ
                                         if(s.text === "ดีมาก") return 'rgba(59, 130, 246, 0.6)'; // ฟ้า
                                         if(s.text === "ดี") return 'rgba(34, 197, 94, 0.6)'; // เขียว
                                         if(s.text === "ปานกลาง") return 'rgba(234, 179, 8, 0.6)'; // เหลือง
