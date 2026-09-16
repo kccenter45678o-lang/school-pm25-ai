@@ -33,7 +33,6 @@
         <!-- แท็บที่ 1: ข้อมูลปัจจุบัน (Real-time) -->
         <div id="tab-realtime" class="space-y-6">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                
                 <!-- การ์ดฝุ่น PM2.5 -->
                 <div id="pm25Card" class="col-span-2 md:col-span-2 bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg border-b-8 border-gray-300 text-center flex flex-col justify-center">
                     <p class="text-sm md:text-base font-bold text-gray-500">ระดับฝุ่น PM 2.5 ตอนนี้</p>
@@ -66,16 +65,14 @@
                         <p id="recText" class="text-lg font-bold text-gray-700">กำลังประมวลผลคำแนะนำ...</p>
                     </div>
                 </div>
-
             </div>
             
             <p id="updateTime" class="text-center text-xs md:text-sm text-gray-500 mt-2">อัปเดตล่าสุด: กำลังโหลด...</p>
 
-            <!-- 🌟 คำอธิบายระดับสี PM 2.5 (นำกลับมาให้แล้ว) -->
+            <!-- คำอธิบายระดับสี PM 2.5 -->
             <div class="mt-8 bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-gray-100">
                 <h3 class="text-lg font-bold text-gray-700 mb-4 text-center">คำอธิบายระดับสีค่าฝุ่น PM 2.5</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                    <!-- Blue -->
                     <div class="flex items-start gap-3 p-3 rounded-xl bg-blue-50 border border-blue-100">
                         <div class="bg-blue-500 text-white font-bold px-3 py-1 rounded-lg min-w-[75px] text-center">0-15.0</div>
                         <div>
@@ -83,7 +80,6 @@
                             <p class="text-gray-600 text-xs mt-1">สามารถทำกิจกรรมกลางแจ้งได้ตามปกติ</p>
                         </div>
                     </div>
-                    <!-- Green -->
                     <div class="flex items-start gap-3 p-3 rounded-xl bg-green-50 border border-green-100">
                         <div class="bg-green-500 text-white font-bold px-3 py-1 rounded-lg min-w-[75px] text-center">15.1-25.0</div>
                         <div>
@@ -91,7 +87,6 @@
                             <p class="text-gray-600 text-xs mt-1">คนทั่วไปปกติ, กลุ่มเสี่ยงควรลดเวลากลางแจ้ง</p>
                         </div>
                     </div>
-                    <!-- Yellow -->
                     <div class="flex items-start gap-3 p-3 rounded-xl bg-yellow-50 border border-yellow-100">
                         <div class="bg-yellow-500 text-white font-bold px-3 py-1 rounded-lg min-w-[75px] text-center">25.1-37.5</div>
                         <div>
@@ -99,7 +94,6 @@
                             <p class="text-gray-600 text-xs mt-1">ควรเริ่มใส่หน้ากาก, ผู้ป่วยภูมิแพ้ควรหลีกเลี่ยงที่โล่ง</p>
                         </div>
                     </div>
-                    <!-- Orange -->
                     <div class="flex items-start gap-3 p-3 rounded-xl bg-orange-50 border border-orange-100">
                         <div class="bg-orange-500 text-white font-bold px-3 py-1 rounded-lg min-w-[75px] text-center">37.6-75.0</div>
                         <div>
@@ -107,7 +101,6 @@
                             <p class="text-gray-600 text-xs mt-1">ควรหลีกเลี่ยงกิจกรรมกลางแจ้ง และใส่หน้ากากกันฝุ่น</p>
                         </div>
                     </div>
-                    <!-- Red -->
                     <div class="flex items-start gap-3 p-3 rounded-xl bg-red-50 border border-red-100 md:col-span-2">
                         <div class="bg-red-600 text-white font-bold px-3 py-1 rounded-lg min-w-[75px] text-center">> 75.0</div>
                         <div>
@@ -121,23 +114,33 @@
 
         <!-- แท็บที่ 2: พยากรณ์ (Forecast) -->
         <div id="tab-forecast" class="hidden space-y-6">
-            <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-sm text-blue-800">
-                💡 <b>ระบบ AI ของเรา:</b> เรียนรู้จากข้อมูลอุณหภูมิและความชื้นในอดีต เพื่อทำนายแนวโน้มสภาพอากาศล่วงหน้า ช่วยให้อาจารย์และนักศึกษาใช้วางแผนการจัดกิจกรรมได้
-            </div>
-
-            <!-- กราฟฝุ่น -->
+            
+            <!-- 🌟 กราฟฝุ่น พร้อมกล่องแปลผลอัตโนมัติ -->
             <div class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg">
-                <h3 class="text-lg font-bold text-gray-700 mb-4">🌪️ คาดการณ์ฝุ่น PM 2.5 (7 วัน)</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-gray-700">🌪️ คาดการณ์ฝุ่น PM 2.5 (7 วัน)</h3>
+                    <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold">ใช้ AI ประมวลผลจากข้อมูลโรงเรียน</span>
+                </div>
+                
+                <!-- กล่องแปลผลกราฟให้นักเรียนเข้าใจง่าย -->
+                <div id="pmForecastSummary" class="p-3 mb-4 rounded-xl border text-sm font-bold text-center">
+                    กำลังวิเคราะห์แนวโน้มฝุ่น...
+                </div>
+
                 <div class="h-56 w-full relative">
                     <canvas id="pmForecastChart"></canvas>
                 </div>
             </div>
 
-            <!-- กราฟอุณหภูมิ -->
+            <!-- 🌟 การ์ดพยากรณ์อากาศ 7 วัน (เปลี่ยนจากกราฟเส้น) -->
             <div class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg">
-                <h3 class="text-lg font-bold text-orange-600 mb-4">🌡️ คาดการณ์อุณหภูมิเฉลี่ย (7 วัน)</h3>
-                <div class="h-56 w-full relative">
-                    <canvas id="tempForecastChart"></canvas>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-blue-800">🌤️ พยากรณ์สภาพอากาศ (7 วัน)</h3>
+                </div>
+                
+                <div id="weatherCardsContainer" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                    <!-- การ์ดพยากรณ์อากาศจะถูกสร้างด้วย JavaScript ที่นี่ -->
+                    <p class="text-sm text-gray-500 col-span-full text-center py-4">กำลังโหลดพยากรณ์อากาศ...</p>
                 </div>
             </div>
         </div>
@@ -146,21 +149,18 @@
         <div id="tab-system" class="hidden">
             <div class="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg text-gray-700 space-y-6">
                 <h3 class="text-xl font-bold text-blue-900 border-b pb-2">ระบบนี้ทำงานอย่างไร? (How it works)</h3>
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
                         <p class="font-bold text-blue-800 text-lg">📡 1. การเก็บข้อมูล (IoT)</p>
-                        <p class="text-sm mt-2 text-gray-600">เราติดตั้งเซนเซอร์ <b>PMS5003</b> (วัดฝุ่น) และ <b>BME280</b> (วัดอุณหภูมิ/ความชื้น/ความดัน) ไว้ในพื้นที่ ส่งข้อมูลผ่านบอร์ด <b>ESP32</b> ขึ้นสู่ระบบคลาวด์ ThingSpeak ทุกๆ นาที</p>
+                        <p class="text-sm mt-2 text-gray-600">ติดตั้งเซนเซอร์ <b>PMS5003</b> และ <b>BME280</b> ส่งข้อมูลผ่านบอร์ด <b>ESP32</b> ขึ้นสู่ระบบคลาวด์ ThingSpeak ทุกๆ นาที</p>
                     </div>
-                    
                     <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
                         <p class="font-bold text-purple-800 text-lg">🧠 2. สมองกล (AI Model)</p>
-                        <p class="text-sm mt-2 text-gray-600">ข้อมูลนับหมื่นแถวถูกนำมาสอน (Train) ให้กับปัญญาประดิษฐ์รุ่น <b>Random Forest</b> เพื่อให้มันเข้าใจรูปแบบสภาพอากาศของพื้นที่นี้โดยเฉพาะ</p>
+                        <p class="text-sm mt-2 text-gray-600">ข้อมูลถูกนำมาสอนให้กับปัญญาประดิษฐ์รุ่น <b>Random Forest</b> เพื่อให้มันเข้าใจรูปแบบสภาพอากาศของพื้นที่นี้โดยเฉพาะ</p>
                     </div>
-
                     <div class="bg-orange-50 p-4 rounded-xl border border-orange-100 md:col-span-2">
                         <p class="font-bold text-orange-800 text-lg">⚖️ 3. การปรับเทียบความชื้น (Calibration)</p>
-                        <p class="text-sm mt-2 text-gray-600">อนุภาคฝุ่นมักจะ "อมน้ำ" และพองตัวเมื่ออากาศชื้น (เกิน 70%) ทำให้เซนเซอร์อ่านค่าฝุ่นสูงเกินจริง ระบบของเรามีสมการคณิตศาสตร์ <code>y = 0.85x + 2.5</code> เพื่อหักลบค่าบวมน้ำออก ทำให้ตัวเลขมีความแม่นยำสูง</p>
+                        <p class="text-sm mt-2 text-gray-600">ฝุ่นจะพองตัวเมื่ออากาศชื้น ทำให้ค่าสูงเกินจริง ระบบมีสมการ <code>y = 0.85x + 2.5</code> เพื่อหักลบค่าบวมน้ำออก ทำให้แม่นยำสูง</p>
                     </div>
                 </div>
             </div>
@@ -169,12 +169,16 @@
 
     <!-- JavaScript Logic -->
     <script>
+        // ตั้งค่า API
         const CHANNEL_ID = '3427524'; 
         const READ_API_KEY = 'J29XMPTCYYIX42XK';
         const THINGSPEAK_URL = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?api_key=${READ_API_KEY}&results=1`;
         
-        // ลิงก์ API ทำนายผลล่วงหน้า 7 วัน
-        const FORECAST_URL = `https://pm25-ai-api-nnhs.onrender.com/my-forecast`;
+        // API โมเดล AI ของคุณ (ทำนายฝุ่น PM2.5)
+        const AI_FORECAST_URL = `https://pm25-ai-api-nnhs.onrender.com/my-forecast`;
+        
+        // API พยากรณ์อากาศสากล (Open-Meteo) สำหรับดึงสภาพอากาศและฝน
+        const WEATHER_FORECAST_URL = `https://api.open-meteo.com/v1/forecast?latitude=13.28&longitude=100.92&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FBangkok`;
 
         function formatHumanDate(dateString) {
             const date = new Date(dateString);
@@ -191,7 +195,17 @@
             return `${thaiDays[date.getDay()]} ${date.getDate()} ${thaiMonths[date.getMonth()]}`;
         }
 
-        // ฟังก์ชันแปลผลข้อมูลเป็นสีและคำแนะนำสำหรับสถานศึกษา
+        // ตัวแปลงรหัสสภาพอากาศเป็นข้อความและไอคอน (WMO Weather Code)
+        function getWeatherDescription(code) {
+            if (code === 0) return { text: "แจ่มใส", icon: "☀️" };
+            if (code === 1 || code === 2 || code === 3) return { text: "มีเมฆบางส่วน", icon: "⛅" };
+            if (code === 45 || code === 48) return { text: "มีหมอก", icon: "🌫️" };
+            if (code === 51 || code === 53 || code === 55 || code === 61 || code === 63 || code === 65) return { text: "มีฝนตก", icon: "🌧️" };
+            if (code === 80 || code === 81 || code === 82) return { text: "ฝนตกหนัก", icon: "⛈️" };
+            if (code === 95 || code === 96 || code === 99) return { text: "พายุฝนฟ้าคะนอง", icon: "🌩️" };
+            return { text: "สภาพอากาศแปรปรวน", icon: "🌈" };
+        }
+
         function getAQIStatus(pm) {
             if (pm <= 15.0) return { icon: "🔵", face: "😄", bannerBg: "bg-blue-500", textCol: "text-blue-500", borderCol: "border-blue-500", bgCol: "bg-blue-50", chartColor: "rgba(59, 130, 246, 0.7)", desc: "อากาศดีมาก", schoolDesc: "ทำกิจกรรมกลางแจ้งและเรียนวิชาพละได้ตามปกติ ⚽", recColor: "border-blue-500" };
             if (pm <= 25.0) return { icon: "🟢", face: "🙂", bannerBg: "bg-green-500", textCol: "text-green-500", borderCol: "border-green-500", bgCol: "bg-green-50", chartColor: "rgba(34, 197, 94, 0.7)", desc: "อากาศดี", schoolDesc: "ทำกิจกรรมได้ปกติ นักเรียนกลุ่มเสี่ยงควรสังเกตอาการ 🏃", recColor: "border-green-500" };
@@ -225,63 +239,71 @@
 
                     const status = getAQIStatus(calPM);
                     
-                    // อัปเดตป้าย Banner ด้านบน
                     const banner = document.getElementById('statusBanner');
                     banner.className = `w-full text-center py-3 px-4 font-bold text-white rounded-xl shadow-md mb-6 transition-all duration-300 ${status.bannerBg}`;
                     banner.innerText = `${status.icon} คุณภาพอากาศตอนนี้: ${status.desc}`;
 
-                    // อัปเดตการ์ด PM2.5
                     const pmCard = document.getElementById('pm25Card');
                     pmCard.className = `col-span-2 md:col-span-2 bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg border-b-8 text-center transition-colors duration-300 flex flex-col justify-center ${status.borderCol} ${status.bgCol}`;
                     document.getElementById('pm25Cal').className = `text-6xl md:text-7xl font-extrabold my-2 transition-colors duration-300 ${status.textCol}`;
                     document.getElementById('pmIcon').innerText = status.face;
 
-                    // อัปเดตคำแนะนำสำหรับโรงเรียน
                     const recBox = document.getElementById('schoolRecommendation');
                     recBox.className = `col-span-2 md:col-span-4 bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-md border-l-8 text-left flex items-center gap-4 transition-all duration-300 ${status.recColor}`;
                     document.getElementById('recText').innerText = status.schoolDesc;
                     document.getElementById('recText').className = `text-lg font-bold ${status.textCol}`;
                 }
-            } catch (err) {
-                console.error("Realtime Error:", err);
-            }
+            } catch (err) { console.error("Realtime Error:", err); }
         }
 
-        let pmChart = null, tempChart = null;
+        let pmChart = null;
         
-        async function fetchForecast() {
+        // ฟังก์ชันดึงข้อมูลพยากรณ์ทั้ง 2 แหล่ง (AI ฝุ่น + กรมอุตุฯ อากาศ)
+        async function fetchForecasts() {
+            // 1. ดึงพยากรณ์ฝุ่นจาก AI ของคุณ
             try {
-                const res = await fetch(FORECAST_URL);
-                const data = await res.json();
+                const resPM = await fetch(AI_FORECAST_URL);
+                const dataPM = await resPM.json();
                 
-                if (data.hourly) {
-                    const dates = data.hourly.time;
-                    const pmVals = data.hourly.pm2_5;
-                    const tempVals = data.hourly.temperature_2m || []; 
-                    
+                if (dataPM.hourly) {
+                    const dates = dataPM.hourly.time;
+                    const pmVals = dataPM.hourly.pm2_5;
                     const dailyMap = {};
+                    
                     dates.forEach((dStr, idx) => {
                         const dateOnly = dStr.split('T')[0];
-                        if (!dailyMap[dateOnly]) dailyMap[dateOnly] = { pm: [], temp: [] };
-                        dailyMap[dateOnly].pm.push(pmVals[idx]);
-                        if(tempVals.length > 0) dailyMap[dateOnly].temp.push(tempVals[idx]);
+                        if (!dailyMap[dateOnly]) dailyMap[dateOnly] = [];
+                        dailyMap[dateOnly].push(pmVals[idx]);
                     });
 
-                    const labels = [], avgPmData = [], avgTempData = [], chartColors = [];
+                    const labels = [], avgPmData = [], chartColors = [];
 
                     for (const [date, vals] of Object.entries(dailyMap)) {
                         labels.push(formatHumanDate(date));
-                        
-                        const avgPm = (vals.pm.reduce((a, b) => a + b, 0) / vals.pm.length).toFixed(1);
+                        const avgPm = (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1);
                         avgPmData.push(avgPm);
                         chartColors.push(getAQIStatus(avgPm).chartColor); 
-                        
-                        if(vals.temp.length > 0) {
-                            avgTempData.push((vals.temp.reduce((a, b) => a + b, 0) / vals.temp.length).toFixed(1));
-                        }
                     }
 
-                    // วาดกราฟ PM2.5
+                    // หาจุดสูงสุดเพื่อแปลผลสรุปให้นักเรียนอ่าน
+                    const maxPm = Math.max(...avgPmData);
+                    const summaryBox = document.getElementById('pmForecastSummary');
+                    
+                    if (maxPm <= 25.0) {
+                        summaryBox.innerHTML = "🟢 <b>สรุปแนวโน้ม:</b> สัปดาห์นี้ภาพรวมฝุ่นอยู่ในเกณฑ์ดีมาก สามารถจัดกิจกรรมกลางแจ้งและเรียนวิชาพละได้ตามปกติ";
+                        summaryBox.className = "p-3 mb-4 rounded-xl border text-sm font-bold text-center bg-green-50 text-green-700 border-green-200";
+                    } else if (maxPm <= 37.5) {
+                        summaryBox.innerHTML = "🟡 <b>สรุปแนวโน้ม:</b> สัปดาห์นี้ฝุ่นอยู่ในเกณฑ์ปานกลาง บางวันอาจมีฝุ่นเล็กน้อย สามารถทำกิจกรรมได้แต่อย่าหักโหม";
+                        summaryBox.className = "p-3 mb-4 rounded-xl border text-sm font-bold text-center bg-yellow-50 text-yellow-700 border-yellow-200";
+                    } else if (maxPm <= 75.0) {
+                        summaryBox.innerHTML = "🟠 <b>สรุปแนวโน้ม:</b> สัปดาห์นี้มีแนวโน้มฝุ่นเกินมาตรฐานบางวัน ควรติดตามสถานการณ์ใกล้ชิดและเตรียมแผนสำรองงดกิจกรรมกลางแจ้ง";
+                        summaryBox.className = "p-3 mb-4 rounded-xl border text-sm font-bold text-center bg-orange-50 text-orange-700 border-orange-200";
+                    } else {
+                        summaryBox.innerHTML = "🔴 <b>สรุปแนวโน้ม:</b> สัปดาห์นี้มีสภาพอากาศวิกฤต ฝุ่นอยู่ในเกณฑ์อันตราย ควรงดกิจกรรมกลางแจ้งและสวมหน้ากากอนามัย!";
+                        summaryBox.className = "p-3 mb-4 rounded-xl border text-sm font-bold text-center bg-red-50 text-red-700 border-red-200";
+                    }
+
+                    // วาดกราฟ
                     const ctxPm = document.getElementById('pmForecastChart').getContext('2d');
                     if (pmChart) pmChart.destroy();
                     pmChart = new Chart(ctxPm, {
@@ -297,32 +319,42 @@
                         },
                         options: { responsive: true, maintainAspectRatio: false }
                     });
+                }
+            } catch (err) { console.error("PM Forecast Error:", err); }
 
-                    // วาดกราฟอุณหภูมิ (เส้น)
-                    if(avgTempData.length > 0) {
-                        const ctxTemp = document.getElementById('tempForecastChart').getContext('2d');
-                        if (tempChart) tempChart.destroy();
-                        tempChart = new Chart(ctxTemp, {
-                            type: 'line',
-                            data: {
-                                labels: labels,
-                                datasets: [{
-                                    label: 'อุณหภูมิเฉลี่ย (°C)',
-                                    data: avgTempData,
-                                    borderColor: '#f97316', 
-                                    backgroundColor: 'rgba(249, 115, 22, 0.2)',
-                                    borderWidth: 3,
-                                    pointBackgroundColor: '#ea580c',
-                                    pointRadius: 5,
-                                    fill: true,
-                                    tension: 0.4
-                                }]
-                            },
-                            options: { responsive: true, maintainAspectRatio: false }
-                        });
+            // 2. ดึงพยากรณ์อากาศ 7 วัน (แดด/ฝน/อุณหภูมิ) จาก Open-Meteo
+            try {
+                const resWeather = await fetch(WEATHER_FORECAST_URL);
+                const dataWeather = await resWeather.json();
+                
+                if (dataWeather.daily) {
+                    const wTimes = dataWeather.daily.time;
+                    const wCodes = dataWeather.daily.weathercode;
+                    const wMaxT = dataWeather.daily.temperature_2m_max;
+                    const wMinT = dataWeather.daily.temperature_2m_min;
+                    
+                    const container = document.getElementById('weatherCardsContainer');
+                    container.innerHTML = ''; // ล้างข้อความกำลังโหลด
+
+                    for (let i = 0; i < 7; i++) {
+                        const dateText = formatHumanDate(wTimes[i]);
+                        const weather = getWeatherDescription(wCodes[i]);
+                        const max = Math.round(wMaxT[i]);
+                        const min = Math.round(wMinT[i]);
+                        
+                        // สร้างการ์ดอากาศแต่ละวัน
+                        const cardHTML = `
+                            <div class="bg-blue-50/50 hover:bg-blue-100 transition-colors rounded-xl p-3 text-center border border-blue-100 shadow-sm flex flex-col justify-center items-center">
+                                <p class="font-bold text-gray-700 text-sm whitespace-nowrap">${dateText}</p>
+                                <div class="text-4xl my-2">${weather.icon}</div>
+                                <p class="text-xs font-medium text-gray-600">${weather.text}</p>
+                                <p class="text-sm font-bold text-orange-500 mt-1">${max}° <span class="text-gray-400 font-normal mx-1">/</span> <span class="text-cyan-600">${min}°</span></p>
+                            </div>
+                        `;
+                        container.innerHTML += cardHTML;
                     }
                 }
-            } catch (err) { console.error("Forecast Error:", err); }
+            } catch (err) { console.error("Weather Forecast Error:", err); }
         }
 
         function switchTab(tabId) {
@@ -335,8 +367,8 @@
         }
 
         fetchRealtime();
-        fetchForecast();
-        setInterval(fetchRealtime, 60000); // รีเฟรชข้อมูลเรียลไทม์ทุก 1 นาที
+        fetchForecasts(); // เรียกใช้งานระบบดึงข้อมูลพยากรณ์ใหม่
+        setInterval(fetchRealtime, 60000); 
     </script>
 </body>
 </html>
